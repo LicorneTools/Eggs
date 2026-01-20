@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Egg & Banana Timer <3</title>
+    <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --window-bg: #FCD6D6; /* Pink background */
+            --header-yellow: #fdf5a2;
+            --border-orange: #d9a066;
+            --text-brown: #5d4037;
+            --btn-pink: #fbc6d0;
+            --body-bg-yellow: #fefcd7;
+        }
+
+        body {
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'VT323', monospace;
+            background-color: var(--body-bg-yellow);
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Animated Clouds */
+        .cloud-container {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: hidden;
+        }
+        .cloud {
+            position: absolute;
+            background-color: #fff;
+            border-radius: 50px;
+            animation: moveClouds linear infinite;
+            opacity: 0.7;
+        }
+        .cloud:nth-child(1) { width: 120px; height: 40px; top: 10%; animation-duration: 40s; }
+        .cloud:nth-child(2) { width: 160px; height: 50px; top: 30%; animation-duration: 55s; animation-delay: -15s; }
+        .cloud:nth-child(3) { width: 90px; height: 30px; top: 60%; animation-duration: 45s; animation-delay: -5s; }
+
+        @keyframes moveClouds {
+            0% { transform: translateX(-200px); }
+            100% { transform: translateX(110vw); }
+        }
+
+        /* App Window */
+        #app-window {
+            width: 360px;
+            background-color: var(--window-bg);
+            border: 3px solid var(--border-orange);
+            box-shadow: 8px 8px 0px rgba(0,0,0,0.1);
+            z-index: 10;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Splash Screen overlay */
+        #splash-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--window-bg);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 0.5s ease-out;
+        }
+        #splash-screen img { width: 120px; height: auto; margin-bottom: 20px; }
+        .loading-text { font-size: 24px; color: var(--text-brown); }
+
+        .window-header {
+            background-color: var(--header-yellow);
+            border-bottom: 3px solid var(--border-orange);
+            padding: 8px 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-title { font-size: 22px; color: var(--border-orange); }
+
+        .screen {
+            padding: 15px;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            min-height: 450px;
+        }
+        .active { display: flex; }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .grid-item {
+            cursor: pointer;
+            padding: 8px;
+            border: 2px solid transparent;
+            background: rgba(255,255,255,0.2);
+            transition: 0.2s;
+        }
+        .grid-item:hover { border-color: var(--border-orange); background: rgba(255,255,255,0.4); }
+        .grid-item img { width: 65px; height: 65px; object-fit: contain; }
+        .grid-item span { display: block; font-size: 16px; margin-top: 5px; color: var(--text-brown); }
+
+        .info-box {
+            background: rgba(255, 255, 255, 0.5);
+            border: 2px dashed var(--border-orange);
+            padding: 12px;
+            margin: 10px 0;
+            font-size: 15px;
+            line-height: 1.3;
+            color: var(--text-brown);
+            text-align: left;
+        }
+
+        .timer-val { font-size: 55px; margin: 5px 0; color: var(--text-brown); }
+
+        .btn-ui {
+            background-color: var(--btn-pink);
+            border: 3px solid var(--border-orange);
+            padding: 6px 20px;
+            font-family: 'VT323', monospace;
+            font-size: 22px;
+            cursor: pointer;
+            box-shadow: 3px 3px 0px var(--border-orange);
+            color: var(--text-brown);
+        }
+        .btn-ui:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0px var(--border-orange); }
+        .btn-quit { background-color: #ff9f9f; margin-top: 5px; font-size: 18px; }
+    </style>
+</head>
+<body>
+
+    <div class="cloud-container">
+        <div class="cloud"></div>
+        <div class="cloud"></div>
+        <div class="cloud"></div>
+    </div>
+
+    <div id="app-window">
+        <div id="splash-screen" onclick="hideSplash()">
+            <img src="img6.jpg" alt="Logo">
+            <div class="loading-text">Loading...</div>
+        </div>
+
+        <div class="window-header">
+            <div class="header-title">Egg & Health Timer <3</div>
+            <div class="header-controls"><span>_ X</span></div>
+        </div>
+
+        <div id="screen-welcome" class="screen active">
+            <h2 style="color: var(--text-brown); margin-top: 30px;">Let's time your day!</h2>
+            <img src="img1.jpg" style="width: 80px; margin: 25px;">
+            <button class="btn-ui" onclick="showScreen('screen-select')">Start</button>
+        </div>
+
+        <div id="screen-select" class="screen">
+            <p style="font-size: 22px; color: var(--text-brown);">What are we making?</p>
+            <div class="grid">
+                <div class="grid-item" onclick="startTimer(180, 'egg')">
+                    <img src="img1.jpg"><span>Soft Boiled</span>
+                </div>
+                <div class="grid-item" onclick="startTimer(420, 'egg')">
+                    <img src="img2.jpg"><span>Hard Boiled</span>
+                </div>
+                <div class="grid-item" onclick="startTimer(28800, 'banana')">
+                    <img src="img3.jpg"><span>Banana Water</span>
+                </div>
+                <div class="grid-item" onclick="startTimer(240, 'egg')">
+                    <img src="img4.jpg"><span>Scrambled</span>
+                </div>
+            </div>
+        </div>
+
+        <div id="screen-timer" class="screen">
+            <p id="timer-msg" style="font-size: 18px; margin-bottom: 5px; color: var(--text-brown);"></p>
+            <img src="img5.jpg" style="width: 70px;">
+            
+            <div id="banana-info" class="info-box" style="display:none;">
+                <strong>Instruction:</strong> Soak a banana in water for the entire evening. Drink the extract upon waking up.<br>
+                <br>
+                <strong>Heart Benefits:</strong> Packed with potassium and magnesium, this infusion helps regulate blood pressure and supports overall cardiovascular health.
+            </div>
+
+            <div id="timer-display" class="timer-val">00:00:00</div>
+            <button class="btn-ui btn-quit" onclick="stopTimer()">Quit</button>
+        </div>
+    </div>
+
+    <script>
+        // Splash screen logic
+        window.addEventListener('load', () => {
+            setTimeout(hideSplash, 3000); // Disparaît après 3 secondes
+        });
+
+        function hideSplash() {
+            const splash = document.getElementById('splash-screen');
+            splash.style.opacity = '0';
+            setTimeout(() => {
+                splash.style.display = 'none';
+            }, 500);
+        }
+
+        let countdown;
+
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+        }
+
+        function startTimer(seconds, type) {
+            showScreen('screen-timer');
+            const msg = document.getElementById('timer-msg');
+            const info = document.getElementById('banana-info');
+            
+            if(type === 'banana') {
+                msg.innerText = "Persephone, your infusion is ready in..";
+                info.style.display = "block";
+            } else {
+                msg.innerText = "Persephone, your egg is ready in..";
+                info.style.display = "none";
+            }
+
+            clearInterval(countdown);
+            let timeLeft = seconds;
+            updateDisplay(timeLeft);
+
+            countdown = setInterval(() => {
+                timeLeft--;
+                updateDisplay(timeLeft);
+                if (timeLeft <= 0) {
+                    clearInterval(countdown);
+                    alert("Time's up! Persephone, it is ready! ✨");
+                    showScreen('screen-welcome');
+                }
+            }, 1000);
+        }
+
+        function stopTimer() {
+            clearInterval(countdown);
+            showScreen('screen-select');
+        }
+
+        function updateDisplay(seconds) {
+            const hrs = Math.floor(seconds / 3600);
+            const mins = Math.floor((seconds % 3600) / 60);
+            const secs = seconds % 60;
+            
+            let display = "";
+            if (hrs > 0) {
+                display = `${hrs.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+            } else {
+                display = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+            }
+            document.getElementById('timer-display').innerText = display;
+        }
+    </script>
+</body>
+</html>
